@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import {BrowserRouter, Routes, Route} from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import axios from "axios";
 import 'react-toastify/dist/ReactToastify.css';
 import './index.css';
 
@@ -19,29 +20,38 @@ import { ToastContainer } from "react-toastify";
 import ProtectedRoute from "./landing_page/ProtectedRoute";
 
 
-
+axios.defaults.withCredentials = true;
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
 root.render(
   <React.StrictMode>
-  <BrowserRouter>
-  <Navbar />
+    <BrowserRouter>
+      <Navbar />
 
-  <ToastContainer />
-  <Routes>
-    <Route path="/" element={<HomePage />}/>
-    <Route path="/signup" element={<Signup />}/>
-    <Route path="/login" element={<Login />} /> 
-    <Route path="/about" element={<AboutPage />}/>
-    <Route path="/product" element={<ProtectedRoute><ProductPage />
-    </ProtectedRoute>}/>
-    <Route path="/pricing" element={<PricingPage />}/>
-    <Route path="/support" element={<SupportPage />}/>
-    <Route path="*" element={<NotFound />}/>
-  </Routes>
+      <ToastContainer />
 
-  <Footer />
-  </BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/about" element={<AboutPage />} />
+
+        <Route
+          path="/product"
+          element={
+            <ProtectedRoute>
+              <ProductPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/support" element={<SupportPage />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+
+      <Footer />
+    </BrowserRouter>
   </React.StrictMode>
 );
-

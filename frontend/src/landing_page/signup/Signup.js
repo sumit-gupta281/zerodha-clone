@@ -3,6 +3,9 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
+
+axios.defaults.withCredentials = true;
+
 function Signup() {
   const navigate = useNavigate();
 
@@ -13,9 +16,11 @@ function Signup() {
   });
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
+
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
   };
 
@@ -25,21 +30,18 @@ function Signup() {
     try {
       await axios.post(
         `${process.env.REACT_APP_API_URL}/auth/signup`,
-        formData,
-        { withCredentials: true }
+        formData
       );
 
-      
-      toast.success("Signup successful  Please login");
+      toast.success("Signup successful Please login");
 
-      
       setTimeout(() => {
         navigate("/login");
-      }, 1500);
+      }, 1200);
 
     } catch (error) {
       toast.error(
-        error.response?.data?.message || "Signup failed"
+        error.response?.data?.message || "Signup failed "
       );
     }
   };
@@ -56,6 +58,7 @@ function Signup() {
               name="name"
               placeholder="Name"
               className="form-control mb-3"
+              value={formData.name}
               onChange={handleChange}
               required
             />
@@ -65,6 +68,7 @@ function Signup() {
               name="email"
               placeholder="Email"
               className="form-control mb-3"
+              value={formData.email}
               onChange={handleChange}
               required
             />
@@ -74,11 +78,12 @@ function Signup() {
               name="password"
               placeholder="Password"
               className="form-control mb-3"
+              value={formData.password}
               onChange={handleChange}
               required
             />
 
-            <button className="btn btn-primary w-100">
+            <button type="submit" className="btn btn-primary w-100">
               Signup
             </button>
           </form>

@@ -3,6 +3,9 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
+
+axios.defaults.withCredentials = true;
+
 function Login() {
   const navigate = useNavigate();
 
@@ -26,20 +29,19 @@ function Login() {
     try {
       const res = await axios.post(
         `${process.env.REACT_APP_API_URL}/auth/login`,
-        formData,
-        { withCredentials: true }
+        formData
       );
 
-      
-      localStorage.setItem("token", res.data.token);
+     
+      if (res.data?.token) {
+        localStorage.setItem("token", res.data.token);
+      }
 
-      
       toast.success("Login successful");
 
-      
       setTimeout(() => {
         navigate("/product");
-      }, 1500);
+      }, 1200);
 
     } catch (error) {
       toast.error(
@@ -60,7 +62,7 @@ function Login() {
               name="email"
               placeholder="Email"
               className="form-control mb-3"
-              value={formData.email}   
+              value={formData.email}
               onChange={handleChange}
               required
             />
@@ -70,7 +72,7 @@ function Login() {
               name="password"
               placeholder="Password"
               className="form-control mb-3"
-              value={formData.password}  
+              value={formData.password}
               onChange={handleChange}
               required
             />
@@ -86,5 +88,3 @@ function Login() {
 }
 
 export default Login;
-
-
