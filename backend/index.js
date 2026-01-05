@@ -21,7 +21,7 @@ app.use(
   cors({
   origin: [
   "http://localhost:3000",
-  "https://zerodha-frontend.onrender.com"
+  "https://zerodha-clone-frontend-izbq.onrender.com"
 ],
 
   credentials: true,
