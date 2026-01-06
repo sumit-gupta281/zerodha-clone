@@ -2,15 +2,11 @@ const User = require("../models/UserModel");
 const { createSecretToken } = require("../utils/SecretToken");
 const bcrypt = require("bcryptjs");
 
-/* ================= ENV CHECK ================= */
-const isProduction = process.env.NODE_ENV === "production";
-
 /* ================= SIGNUP ================= */
 module.exports.Signup = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // validation
     if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
@@ -18,7 +14,6 @@ module.exports.Signup = async (req, res) => {
       });
     }
 
-    // check existing user
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(409).json({
@@ -27,22 +22,23 @@ module.exports.Signup = async (req, res) => {
       });
     }
 
-    // create user
+    // ✅ HASH PASSWORD
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const user = await User.create({
       name,
       email,
-      password,
+      password: hashedPassword,
     });
 
-    // create token
     const token = createSecretToken(user._id);
 
-    // set cookie (FIXED FOR RENDER)
-    res.cookie("token", token, {
-      httpOnly: true,
-      sameSite: isProduction ? "none" : "lax",
-      secure: isProduction,
-    });
+    // ⚠️ cookie TEMPORARILY DISABLED (to avoid Render issues)
+    // res.cookie("token", token, {
+    //   httpOnly: true,
+    //   sameSite: "none",
+    //   secure: true,
+    // });
 
     return res.status(201).json({
       success: true,
@@ -54,7 +50,6 @@ module.exports.Signup = async (req, res) => {
         email: user.email,
       },
     });
-
   } catch (error) {
     console.error("Signup error:", error);
     return res.status(500).json({
@@ -69,7 +64,6 @@ module.exports.Login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // validation
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -77,7 +71,6 @@ module.exports.Login = async (req, res) => {
       });
     }
 
-    // find user
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({
@@ -86,7 +79,6 @@ module.exports.Login = async (req, res) => {
       });
     }
 
-    // password match
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({
@@ -95,15 +87,14 @@ module.exports.Login = async (req, res) => {
       });
     }
 
-    // create token
     const token = createSecretToken(user._id);
 
-    // set cookie (FIXED FOR RENDER)
-    res.cookie("token", token, {
-      httpOnly: true,
-      sameSite: isProduction ? "none" : "lax",
-      secure: isProduction,
-    });
+    // cookie disabled for now
+    // res.cookie("token", token, {
+    //   httpOnly: true,
+    //   sameSite: "none",
+    //   secure: true,
+    // });
 
     return res.status(200).json({
       success: true,
@@ -115,7 +106,6 @@ module.exports.Login = async (req, res) => {
         email: user.email,
       },
     });
-
   } catch (error) {
     console.error("Login error:", error);
     return res.status(500).json({
