@@ -1,6 +1,5 @@
 const User = require("../models/UserModel");
 const { createSecretToken } = require("../utils/SecretToken");
-const bcrypt = require("bcryptjs");
 
 /* ================= SIGNUP ================= */
 module.exports.Signup = async (req, res) => {
@@ -22,23 +21,19 @@ module.exports.Signup = async (req, res) => {
       });
     }
 
-    // ✅ HASH PASSWORD
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     const user = await User.create({
       name,
       email,
-      password: hashedPassword,
+      password,
     });
 
     const token = createSecretToken(user._id);
 
-    // ⚠️ cookie TEMPORARILY DISABLED (to avoid Render issues)
-    // res.cookie("token", token, {
-    //   httpOnly: true,
-    //   sameSite: "none",
-    //   secure: true,
-    // });
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "lax",   // 👈 CHANGE
+      secure: false,     // 👈 CHANGE (IMPORTANT)
+    });
 
     return res.status(201).json({
       success: true,
@@ -79,7 +74,7 @@ module.exports.Login = async (req, res) => {
       });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await require("bcryptjs").compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({
         success: false,
@@ -89,12 +84,11 @@ module.exports.Login = async (req, res) => {
 
     const token = createSecretToken(user._id);
 
-    // cookie disabled for now
-    // res.cookie("token", token, {
-    //   httpOnly: true,
-    //   sameSite: "none",
-    //   secure: true,
-    // });
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "lax",   // 👈 CHANGE
+      secure: false,     // 👈 CHANGE
+    });
 
     return res.status(200).json({
       success: true,
@@ -114,4 +108,3 @@ module.exports.Login = async (req, res) => {
     });
   }
 };
-
